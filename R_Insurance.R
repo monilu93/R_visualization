@@ -4,7 +4,7 @@
 
 #----R as a Calculator----
 
-2 + 3
+2 + 3 #hello
 
 2 - 3
 
