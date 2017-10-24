@@ -1,146 +1,20 @@
-#R Training 1: Brief Introduction
-#RDM Department
+#R and ggplot2 for mapping
 #By: Monica Perez
 
-#----R as a Calculator----
+install.packages("rmarkdown")
 
-2 + 3 #hello
 
-2 - 3
 
-5 * 9
-
-225/15
-
-sqrt(144) #square root
-
-5^2
-
-log(10) #natural logarithm LN in Excel
-
-pi #constant
-
-(2 + 8)/(log(5) + 5^2)
-
-#----Variables----
-
-# assignment with 'arrow' (standard in R)
-a <- 4 + 8
-# assignment with 'equal' (standard in many languages)
-b = 2 - 14
-# double equal '==' is for comparison
-a == b
-
-#R is case sensitive
-
-Z <- 5
-z <- 9
-Z-z
-
-#Some variable names are reserved already
-c
-F
-pi
-sum
-T
-
-#----Expressions----
-
-a1 <- log(125) + exp(2)/log(5) +
-sqrt(log(4 + 2)^2)
-a1
-#11.21115
-
-#easy to make mistake this way
-a2 <- log(125) + exp(2)/log(5)
-+ sqrt(log(4 + 2)^2)
-a2
-#9.4194
-
-#indented expression
-
-a1 <- log(125) + exp(2)/log(5) +
-      sqrt(log(4 + 2)^2)
-
-#x-y plot example
-
-x <- (1:10)
-y <- NA
-
-#for loop in R
-for (i in 1:length(x)){
-  y[i] <- (2 + 1.5*x[i] + rnorm(2)/3)
-}
-
-plot(x, y,
-     xlab = "X series", ylab = "Random Y series",
-     main = "Scatter plot", col = "red", pch = 15)
-
-#-----Functions (User Defined)-----
-
-toCelsius <- function(x){
-  Celsius = (x - 32) * 5/9
-   return(Celsius)
-}
-
-toCelsius(90)
-
-toCelsius(65)
-
-#----Vectors and Data Frames-------
-
-vector1 <- c(1:10)
-vector1<- c(5, 7, 3, 8, 10, 28)
-
-df = data.frame(
-                "firstName" = c("Olivia", "Cyrus", "Fitzgerald", "Jake"),
-                "lastName"  = c("Pope", "Beene", "Grant", "Ballard"),
-                "jobTitle"  = c("Lawyer", "Chief of Staff", "President", "Director"),
-                "salary"    = c(750000, 600000, 1000000, 650000),
-                "age"       = c(40, 62, 57, 47)
-)
-
-#indexing a data frame
-
-df[1, 3] #to get the information in row 1, column 3
-df[1:2,] #to get the first two rows and all columns
-df[, 2:4] #to get all the rows and columns 2-4 inclusive
-
-#---subsetting data frames----
-
-df1 = df[which(df$age > 50),] #get all the observations in the df in which age > 50
-df2 = subset(df, df$age >50) #same as above, different method
-
-#all observations in which salary has the exact numbers in a vector
-df3 = df[which(df$salary %in% c(550000, 600000)),] 
-df4 <- subset(df, df$salary %in% c(550000, 600000))
-
-#----ggplot2----
+#Dataset from: https://www.kaggle.com/hhs/health-insurance/data
 
 install.packages('ggplot2') #install a package
 library(ggplot2) #call the library to use the package
 
-ggplot(df, aes(age, salary))+
-  geom_point(data = df, color = 'blue', size = 4) +
-  ggtitle("Relationship between age and salary")+
-  scale_y_continuous(labels = comma)
-
-
-#--relationship between salary and age (quick example)
-
-summary(df)
-regression = summary(lm(salary ~ age, data = df))
-regression
-
-
-#--Work with actual Data Set
-#Data Set from https://www.kaggle.com/datasets
-
 #setting working directory
-setwd("C:/Users/perezm/Downloads")
+setwd("")
 
 insurance = read.csv(file.choose()) #if you don't know your working directory or have any other problems
-insurance = read.csv("G:/All Payer Database/Admin/Monica/R Training/Data from Kaggle/states.csv")
+insurance = read.csv("")
 
 View(insurance)
 summary(insurance)
