@@ -10,6 +10,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 knitr::opts_chunk$set(echo = TRUE)
+install.packages('rmarkdown')
+library(rmarkdown)
 Dataset from: https://www.kaggle.com/hhs/health-insurance/data
 
 install.packages('ggplot2') #install a package
@@ -17,7 +19,7 @@ library(ggplot2) #call the library to use the package
 ```
 
 ```{r}
-insurance = read.csv(file.choose()) #if you don't know your working directory or have any other problems
+insurance = read.csv('C:/Users/monik/github/R_visualization/states.csv')
 
 View(insurance)
 summary(insurance)
