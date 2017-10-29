@@ -124,13 +124,12 @@ $(document).ready(function () {
 </div>
 
 
-<div id="r-visualization-using-ggplot" class="section level2">
-<h2>R Visualization using ggplot</h2>
-</div>
-<div id="medicare-and-medicaid-insurance-data-from-kaggle" class="section level1">
-<h1>Medicare and Medicaid Insurance Data from Kaggle</h1>
+<div id="medicare-and-medicaid-insurance-data-from-kaggle" class="section level2">
+<h2>Medicare and Medicaid Insurance Data from Kaggle</h2>
 <p>You can find the data set here: <a href="https://www.kaggle.com/hhs/health-insurance/data" class="uri">https://www.kaggle.com/hhs/health-insurance/data</a></p>
 <p>Load to your environment, let’s call it insurance</p>
+<p>Let’s explore the data:</p>
+<pre class="r"><code>summary(insurance)</code></pre>
 <pre><code>##         State    Uninsured.Rate..2010. Uninsured.Rate..2015.
 ##  Alabama   : 1   12.4%  : 2            6%     : 3           
 ##  Alaska    : 1   13.2%  : 2            10.9%  : 2           
@@ -203,8 +202,123 @@ $(document).ready(function () {
 ##  3rd Qu.: 1298255          
 ##  Max.   :57149984          
 ## </code></pre>
+<pre class="r"><code>head(insurance)</code></pre>
+<pre><code>##        State Uninsured.Rate..2010. Uninsured.Rate..2015.
+## 1   Alabama                  14.6%                 10.1%
+## 2    Alaska                  19.9%                 14.9%
+## 3   Arizona                  16.9%                 10.8%
+## 4  Arkansas                  17.5%                  9.5%
+## 5 California                 18.5%                  8.6%
+## 6   Colorado                 15.9%                  8.1%
+##   Uninsured.Rate.Change..2010.2015.
+## 1                            -4.5% 
+## 2                              -5% 
+## 3                            -6.1% 
+## 4                              -8% 
+## 5                            -9.9% 
+## 6                            -7.8% 
+##   Health.Insurance.Coverage.Change..2010.2015.
+## 1                                       215000
+## 2                                        36000
+## 3                                       410000
+## 4                                       234000
+## 5                                      3826000
+## 6                                       419000
+##   Employer.Health.Insurance.Coverage..2015.
+## 1                                   2545000
+## 2                                    390000
+## 3                                   3288000
+## 4                                   1365000
+## 5                                  19552000
+## 6                                   2949000
+##   Marketplace.Health.Insurance.Coverage..2016.
+## 1                                       165534
+## 2                                        17995
+## 3                                       179445
+## 4                                        63357
+## 5                                      1415428
+## 6                                       108311
+##   Marketplace.Tax.Credits..2016. Average.Monthly.Tax.Credit..2016.
+## 1                         152206                             $310 
+## 2                          16205                             $750 
+## 3                         124346                             $230 
+## 4                          56843                             $306 
+## 5                        1239893                             $309 
+## 6                          67062                             $318 
+##   State.Medicaid.Expansion..2016. Medicaid.Enrollment..2013.
+## 1                           False                     799176
+## 2                            True                     122334
+## 3                            True                    1201770
+## 4                            True                     556851
+## 5                            True                    7755381
+## 6                            True                     783420
+##   Medicaid.Enrollment..2016. Medicaid.Enrollment.Change..2013.2016.
+## 1                     910775                                 111599
+## 2                     166625                                  44291
+## 3                    1716198                                 514428
+## 4                     920194                                 363343
+## 5                   11843081                                4087700
+## 6                    1375264                                 591844
+##   Medicare.Enrollment..2016.
+## 1                     989855
+## 2                      88966
+## 3                    1175624
+## 4                     606146
+## 5                    5829777
+## 6                     820234</code></pre>
 <p>After loading the data, we can change the column names to make it easier to read and understand.</p>
-<pre class="r"><code>colnames(insurance) = c(&quot;state&quot;, &quot;uninsuredRate2010&quot;, &quot;uninsuredRate2015&quot;,    &quot;uninsuredRateChange2010_2015&quot;,&quot;healthInsuranceCoverageChange2010_2015&quot;, &quot;employerHealthInsuranceCoverage2015&quot;, &quot;marketplaceHealthInsuranceCoverage2016&quot;, &quot;marketplaceTaxCredits2016&quot;,&quot;averageMonthlyTaxCredit2016&quot;, &quot;stateMedicaidExpansion2016&quot;, &quot;medicaidEnrollment2013&quot;, &quot;medicaidEnrollment2016&quot;, &quot;medicaidEnrollmentChange2013_2016&quot;, &quot;medicareEnrollment2016&quot;)</code></pre>
+<pre class="r"><code>colnames(insurance) = c(&quot;state&quot;, &quot;uninsuredRate2010&quot;, &quot;uninsuredRate2015&quot;,    &quot;uninsuredRateChange2010_2015&quot;,&quot;healthInsuranceCoverageChange2010_2015&quot;, &quot;employerHealthInsuranceCoverage2015&quot;, &quot;marketplaceHealthInsuranceCoverage2016&quot;, &quot;marketplaceTaxCredits2016&quot;,&quot;averageMonthlyTaxCredit2016&quot;, &quot;stateMedicaidExpansion2016&quot;, &quot;medicaidEnrollment2013&quot;, &quot;medicaidEnrollment2016&quot;, &quot;medicaidEnrollmentChange2013_2016&quot;, &quot;medicareEnrollment2016&quot;)
+
+head(insurance)</code></pre>
+<pre><code>##        state uninsuredRate2010 uninsuredRate2015
+## 1   Alabama              14.6%             10.1%
+## 2    Alaska              19.9%             14.9%
+## 3   Arizona              16.9%             10.8%
+## 4  Arkansas              17.5%              9.5%
+## 5 California             18.5%              8.6%
+## 6   Colorado             15.9%              8.1%
+##   uninsuredRateChange2010_2015 healthInsuranceCoverageChange2010_2015
+## 1                       -4.5%                                  215000
+## 2                         -5%                                   36000
+## 3                       -6.1%                                  410000
+## 4                         -8%                                  234000
+## 5                       -9.9%                                 3826000
+## 6                       -7.8%                                  419000
+##   employerHealthInsuranceCoverage2015
+## 1                             2545000
+## 2                              390000
+## 3                             3288000
+## 4                             1365000
+## 5                            19552000
+## 6                             2949000
+##   marketplaceHealthInsuranceCoverage2016 marketplaceTaxCredits2016
+## 1                                 165534                    152206
+## 2                                  17995                     16205
+## 3                                 179445                    124346
+## 4                                  63357                     56843
+## 5                                1415428                   1239893
+## 6                                 108311                     67062
+##   averageMonthlyTaxCredit2016 stateMedicaidExpansion2016
+## 1                       $310                       False
+## 2                       $750                        True
+## 3                       $230                        True
+## 4                       $306                        True
+## 5                       $309                        True
+## 6                       $318                        True
+##   medicaidEnrollment2013 medicaidEnrollment2016
+## 1                 799176                 910775
+## 2                 122334                 166625
+## 3                1201770                1716198
+## 4                 556851                 920194
+## 5                7755381               11843081
+## 6                 783420                1375264
+##   medicaidEnrollmentChange2013_2016 medicareEnrollment2016
+## 1                            111599                 989855
+## 2                             44291                  88966
+## 3                            514428                1175624
+## 4                            363343                 606146
+## 5                           4087700                5829777
+## 6                            591844                 820234</code></pre>
 <p>Now, let’s explore the data and see if any of the columns have the appropriate data type.</p>
 <p>It seems some values that should have a numeric value have a factor value. Let’s change it to numeric and get rid of the ‘$’ that could complicate simple arithmetic for the average monthly tax credit field. I like using gsub() for this task.</p>
 <pre class="r"><code>insurance$averageMonthlyTaxCredit2016 = as.character(insurance$averageMonthlyTaxCredit2016)
@@ -214,7 +328,10 @@ insurance$averageMonthlyTaxCredit2016 = as.integer(insurance$averageMonthlyTaxCr
 <p>Now, I’d like to create a region column so that we can compare enrollment between regions in the US. Then, after exploring the data I realized that every state had an extra space at the end, which can easily be removed using gsub() again.</p>
 <pre class="r"><code>insurance$regions = NA #to create the new column
 insurance$state = as.character(insurance$state) #to edit the state column change to character first
-insurance$state = gsub(&quot; $&quot;, &quot;&quot;, insurance$state) #use gsub to remove the last part of the string by using regex.</code></pre>
+insurance$state = gsub(&quot; $&quot;, &quot;&quot;, insurance$state) #use gsub to remove the last part of the string by using regex.
+
+head(insurance$regions)</code></pre>
+<pre><code>## [1] NA NA NA NA NA NA</code></pre>
 <p>Now, we have to poulate our new column. The following for loop takes care of it.</p>
 <pre class="r"><code>for (i in 1:nrow(insurance)){
   if (insurance$state[i] %in% c(&quot;Connecticut&quot;, &quot;Maine&quot;, &quot;Massachusetts&quot;, &quot;New Hampshire&quot;, &quot;Rhode Island&quot;,
@@ -236,7 +353,10 @@ insurance$state = gsub(&quot; $&quot;, &quot;&quot;, insurance$state) #use gsub 
   } else {
     insurance$regions[i] = NA
   }
-}</code></pre>
+}
+
+head(insurance$regions)</code></pre>
+<pre><code>## [1] &quot;South&quot; &quot;West&quot;  &quot;West&quot;  &quot;South&quot; &quot;West&quot;  &quot;West&quot;</code></pre>
 <p>Next, I will be using both dplyr and sqldf to run quick queries on the data to have an aggregated data frame. Make sure you install the packages if you haven’t already.</p>
 <pre class="r"><code>library(dplyr)</code></pre>
 <pre><code>## Warning: package 'dplyr' was built under R version 3.3.3</code></pre>

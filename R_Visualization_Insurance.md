@@ -4,13 +4,19 @@ October 26, 2017
 
 
 
-## R Visualization using ggplot
-
-# Medicare and Medicaid Insurance Data from Kaggle 
+## Medicare and Medicaid Insurance Data from Kaggle 
 
 You can find the data set here: https://www.kaggle.com/hhs/health-insurance/data 
 
 Load to your environment, let's call it insurance
+
+
+Let's explore the data:
+
+
+```r
+summary(insurance)
+```
 
 ```
 ##         State    Uninsured.Rate..2010. Uninsured.Rate..2015.
@@ -87,11 +93,135 @@ Load to your environment, let's call it insurance
 ## 
 ```
 
+```r
+head(insurance)
+```
+
+```
+##        State Uninsured.Rate..2010. Uninsured.Rate..2015.
+## 1   Alabama                  14.6%                 10.1%
+## 2    Alaska                  19.9%                 14.9%
+## 3   Arizona                  16.9%                 10.8%
+## 4  Arkansas                  17.5%                  9.5%
+## 5 California                 18.5%                  8.6%
+## 6   Colorado                 15.9%                  8.1%
+##   Uninsured.Rate.Change..2010.2015.
+## 1                            -4.5% 
+## 2                              -5% 
+## 3                            -6.1% 
+## 4                              -8% 
+## 5                            -9.9% 
+## 6                            -7.8% 
+##   Health.Insurance.Coverage.Change..2010.2015.
+## 1                                       215000
+## 2                                        36000
+## 3                                       410000
+## 4                                       234000
+## 5                                      3826000
+## 6                                       419000
+##   Employer.Health.Insurance.Coverage..2015.
+## 1                                   2545000
+## 2                                    390000
+## 3                                   3288000
+## 4                                   1365000
+## 5                                  19552000
+## 6                                   2949000
+##   Marketplace.Health.Insurance.Coverage..2016.
+## 1                                       165534
+## 2                                        17995
+## 3                                       179445
+## 4                                        63357
+## 5                                      1415428
+## 6                                       108311
+##   Marketplace.Tax.Credits..2016. Average.Monthly.Tax.Credit..2016.
+## 1                         152206                             $310 
+## 2                          16205                             $750 
+## 3                         124346                             $230 
+## 4                          56843                             $306 
+## 5                        1239893                             $309 
+## 6                          67062                             $318 
+##   State.Medicaid.Expansion..2016. Medicaid.Enrollment..2013.
+## 1                           False                     799176
+## 2                            True                     122334
+## 3                            True                    1201770
+## 4                            True                     556851
+## 5                            True                    7755381
+## 6                            True                     783420
+##   Medicaid.Enrollment..2016. Medicaid.Enrollment.Change..2013.2016.
+## 1                     910775                                 111599
+## 2                     166625                                  44291
+## 3                    1716198                                 514428
+## 4                     920194                                 363343
+## 5                   11843081                                4087700
+## 6                    1375264                                 591844
+##   Medicare.Enrollment..2016.
+## 1                     989855
+## 2                      88966
+## 3                    1175624
+## 4                     606146
+## 5                    5829777
+## 6                     820234
+```
+
 After loading the data, we can change the column names to make it easier to read and understand.
 
 
 ```r
 colnames(insurance) = c("state", "uninsuredRate2010", "uninsuredRate2015",    "uninsuredRateChange2010_2015","healthInsuranceCoverageChange2010_2015", "employerHealthInsuranceCoverage2015", "marketplaceHealthInsuranceCoverage2016", "marketplaceTaxCredits2016","averageMonthlyTaxCredit2016", "stateMedicaidExpansion2016", "medicaidEnrollment2013", "medicaidEnrollment2016", "medicaidEnrollmentChange2013_2016", "medicareEnrollment2016")
+
+head(insurance)
+```
+
+```
+##        state uninsuredRate2010 uninsuredRate2015
+## 1   Alabama              14.6%             10.1%
+## 2    Alaska              19.9%             14.9%
+## 3   Arizona              16.9%             10.8%
+## 4  Arkansas              17.5%              9.5%
+## 5 California             18.5%              8.6%
+## 6   Colorado             15.9%              8.1%
+##   uninsuredRateChange2010_2015 healthInsuranceCoverageChange2010_2015
+## 1                       -4.5%                                  215000
+## 2                         -5%                                   36000
+## 3                       -6.1%                                  410000
+## 4                         -8%                                  234000
+## 5                       -9.9%                                 3826000
+## 6                       -7.8%                                  419000
+##   employerHealthInsuranceCoverage2015
+## 1                             2545000
+## 2                              390000
+## 3                             3288000
+## 4                             1365000
+## 5                            19552000
+## 6                             2949000
+##   marketplaceHealthInsuranceCoverage2016 marketplaceTaxCredits2016
+## 1                                 165534                    152206
+## 2                                  17995                     16205
+## 3                                 179445                    124346
+## 4                                  63357                     56843
+## 5                                1415428                   1239893
+## 6                                 108311                     67062
+##   averageMonthlyTaxCredit2016 stateMedicaidExpansion2016
+## 1                       $310                       False
+## 2                       $750                        True
+## 3                       $230                        True
+## 4                       $306                        True
+## 5                       $309                        True
+## 6                       $318                        True
+##   medicaidEnrollment2013 medicaidEnrollment2016
+## 1                 799176                 910775
+## 2                 122334                 166625
+## 3                1201770                1716198
+## 4                 556851                 920194
+## 5                7755381               11843081
+## 6                 783420                1375264
+##   medicaidEnrollmentChange2013_2016 medicareEnrollment2016
+## 1                            111599                 989855
+## 2                             44291                  88966
+## 3                            514428                1175624
+## 4                            363343                 606146
+## 5                           4087700                5829777
+## 6                            591844                 820234
 ```
 
 Now, let's explore the data and see if any of the columns have the appropriate data type.
@@ -113,6 +243,12 @@ Now, I'd like to create a region column so that we can compare enrollment betwee
 insurance$regions = NA #to create the new column
 insurance$state = as.character(insurance$state) #to edit the state column change to character first
 insurance$state = gsub(" $", "", insurance$state) #use gsub to remove the last part of the string by using regex.
+
+head(insurance$regions)
+```
+
+```
+## [1] NA NA NA NA NA NA
 ```
 
 Now, we have to poulate our new column. The following for loop takes care of it.
@@ -140,6 +276,12 @@ for (i in 1:nrow(insurance)){
     insurance$regions[i] = NA
   }
 }
+
+head(insurance$regions)
+```
+
+```
+## [1] "South" "West"  "West"  "South" "West"  "West"
 ```
 Next, I will be using both dplyr and sqldf to run quick queries on the data to have an aggregated data frame. Make sure you install the packages if you haven't already. 
 
@@ -245,7 +387,7 @@ g <- ggplot(insuranceTotals2016, aes(reorder(regions,-totalMedicare2016), totalM
 g
 ```
 
-![](R_Visualization_Insurance_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+![](R_Visualization_Insurance_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
 Now, let's plot the same for Medicaid.
 
@@ -267,7 +409,7 @@ h <- ggplot(insuranceTotals2016, aes(reorder(regions,totalMedicaid2016), totalMe
 h
 ```
 
-![](R_Visualization_Insurance_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+![](R_Visualization_Insurance_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
 
 As you can see, the South has the most enrollment for both Medicaid and Medicare. 
 
@@ -318,7 +460,7 @@ j = ggplot(insuranceTotals2016_melt, aes(regions, y= totalEnrollment, fill = ins
 j
 ```
 
-![](R_Visualization_Insurance_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
+![](R_Visualization_Insurance_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
 
 The plot shows how both Medicaid and Medicare compare to each other in each region. It's very clear now that the South has the most enrollment in both and that Medicaid is more popular.
 
@@ -342,7 +484,7 @@ l = ggplot(insuranceTotals2016_melt, aes(regions, y= totalEnrollment, fill = ins
 l
 ```
 
-![](R_Visualization_Insurance_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
+![](R_Visualization_Insurance_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
 
 The stacked bars give us a better understanding of totals per region, but the side by side ones help us see which product is more common in each area. 
 
@@ -384,7 +526,7 @@ ggplot(data = statesMap) +
   guides(fill=FALSE) #to remove the legend because 50 different colors would be disturbing for our audience
 ```
 
-![](R_Visualization_Insurance_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
+![](R_Visualization_Insurance_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
 
 We have two products, let's choose to map Medicare. First, I will rename the data frame we created with the states' coordinates.
 
@@ -475,7 +617,7 @@ medicare_Map = ggplot(data = medicareStates, mapping = aes(x = long, y = lat, gr
 medicare_Map
 ```
 
-![](R_Visualization_Insurance_files/figure-html/unnamed-chunk-19-1.png)<!-- -->
+![](R_Visualization_Insurance_files/figure-html/unnamed-chunk-20-1.png)<!-- -->
 
 Now that we have the map, let's fill it with the actual information we want to map.
 
@@ -505,7 +647,7 @@ gradient_map <- medicare_Map +
 gradient_map
 ```
 
-![](R_Visualization_Insurance_files/figure-html/unnamed-chunk-21-1.png)<!-- -->
+![](R_Visualization_Insurance_files/figure-html/unnamed-chunk-22-1.png)<!-- -->
 
 We had a very nice map but the legend is in scientific notation and some colors within the map seem very similar and hard to identify. Let's fix this.
 
@@ -521,6 +663,6 @@ finalMap = gradient_map + #using the map from above
 finalMap
 ```
 
-![](R_Visualization_Insurance_files/figure-html/unnamed-chunk-22-1.png)<!-- -->
+![](R_Visualization_Insurance_files/figure-html/unnamed-chunk-23-1.png)<!-- -->
 
 And voila! We got a nicer looking map!
