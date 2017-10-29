@@ -290,53 +290,8 @@ Next, I will be using both dplyr and sqldf to run quick queries on the data to h
 library(dplyr)
 ```
 
-```
-## Warning: package 'dplyr' was built under R version 3.3.3
-```
-
-```
-## 
-## Attaching package: 'dplyr'
-```
-
-```
-## The following objects are masked from 'package:stats':
-## 
-##     filter, lag
-```
-
-```
-## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union
-```
-
 ```r
 library(sqldf)
-```
-
-```
-## Warning: package 'sqldf' was built under R version 3.3.2
-```
-
-```
-## Loading required package: gsubfn
-```
-
-```
-## Loading required package: proto
-```
-
-```
-## Loading required package: RSQLite
-```
-
-```
-## Loading required package: DBI
-```
-
-```
-## Warning: package 'DBI' was built under R version 3.3.3
 ```
 
 I want to know how many were enrolled in both Medicaid and Medicare in 2016 by region, so let's run the following to query it. 
@@ -355,10 +310,6 @@ insuranceTotals2016_sqldf = sqldf('SELECT regions, SUM(medicareEnrollment2016) A
                                   SUM(medicaidEnrollment2016) AS totalMedicaid2016
                                   FROM insurance 
                                   GROUP BY regions')
-```
-
-```
-## Loading required package: tcltk
 ```
 
 ```r
