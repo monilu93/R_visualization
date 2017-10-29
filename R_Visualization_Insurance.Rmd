@@ -9,22 +9,318 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## R Visualization using ggplot
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+# Medicare and Medicaid Insurance Data from Kaggle 
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+Load to your environment, let's call it insurance
+```{r insurance, echo=FALSE}
 
-```{r cars}
-summary(cars)
+insurance = read.csv('C:/Users/monik/github/R_visualization/states.csv')
+
+summary(insurance)
 ```
 
-## Including Plots
+After loading the data, we can change the column names to make it easier to read and understand.
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+colnames(insurance) = c("state", "uninsuredRate2010", "uninsuredRate2015",    "uninsuredRateChange2010_2015","healthInsuranceCoverageChange2010_2015", "employerHealthInsuranceCoverage2015", "marketplaceHealthInsuranceCoverage2016", "marketplaceTaxCredits2016","averageMonthlyTaxCredit2016", "stateMedicaidExpansion2016", "medicaidEnrollment2013", "medicaidEnrollment2016", "medicaidEnrollmentChange2013_2016", "medicareEnrollment2016")
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Now, let's explore the data and see if any of the columns have the appropriate data type.
+
+It seems some values that should have a numeric value have a factor value. Let's change it to numeric and get rid of the '$' that could complicate simple arithmetic for the average monthly tax credit field. I like using gsub() for this task.
+
+```{r}
+insurance$averageMonthlyTaxCredit2016 = as.character(insurance$averageMonthlyTaxCredit2016)
+insurance$averageMonthlyTaxCredit2016 = gsub(" ", "", insurance$averageMonthlyTaxCredit2016)
+insurance$averageMonthlyTaxCredit2016 = gsub("^.", "", insurance$averageMonthlyTaxCredit2016)
+insurance$averageMonthlyTaxCredit2016 = as.integer(insurance$averageMonthlyTaxCredit2016)
+```
+
+Now, I'd like to create a region column so that we can compare enrollment between regions in the US. Then, after exploring the data I realized that every state had an extra space at the end, which can easily be removed using gsub() again. 
+
+```{r}
+insurance$regions = NA #to create the new column
+insurance$state = as.character(insurance$state) #to edit the state column change to character first
+insurance$state = gsub(" $", "", insurance$state) #use gsub to remove the last part of the string by using regex.
+```
+
+Now, we have to poulate our new column. The following for loop takes care of it.
+
+```{r}
+for (i in 1:nrow(insurance)){
+  if (insurance$state[i] %in% c("Connecticut", "Maine", "Massachusetts", "New Hampshire", "Rhode Island",
+                               "Vermont", "New Jersey", "New York", "Pennsylvania")){
+    insurance$regions[i] = "Northeast"
+  } else if (insurance$state[i] %in% c("Illinois", "Indiana", "Michigan", "Ohio", "Wisconsin",
+                                       "Iowa", "Kansas", "Minnesota", "Missouri", "Nebraska",
+                                       "North Dakota", "South Dakota")){
+    insurance$regions[i] = "Midwest"
+  } else if (insurance$state[i] %in% c("Delaware", "Florida", "Georgia", "Maryland", "North Carolina",
+                                       "South Carolina", "Virginia", "District of Columbia", "West Virginia",
+                                       "Alabama", "Kentucky", "Mississippi", "Tennessee", "Arkansas",
+                                       "Louisiana", "Oklahoma", "Texas")){
+    insurance$regions[i] = "South"
+  } else if (insurance$state[i] %in% c("Arizona", "Colorado", "Idaho", "Montana", "Nevada", "California",
+                                       "New Mexico", "Utah", "Wyoming", "Alaska", "Hawaii", "Oregon",
+                                       "Washington")){
+    insurance$regions[i] = "West"
+  } else {
+    insurance$regions[i] = NA
+  }
+}
+```
+Next, I will be using both dplyr and sqldf to run quick queries on the data to have an aggregated data frame. Make sure you install the packages if you haven't already. 
+
+```{r}
+library(dplyr)
+library(sqldf)
+```
+
+I want to know how many were enrolled in both Medicaid and Medicare in 2016 by region, so let's run the following to query it. 
+
+```{r}
+#using dplyr
+insuranceTotals2016 = insurance %>%
+              group_by(regions) %>%
+              summarize(totalMedicare2016 = sum(medicareEnrollment2016), totalMedicaid2016 =   sum(medicaidEnrollment2016))
+             
+insuranceTotals2016 = na.omit(insuranceTotals2016) #our data has an aggregated last row which included the total amount in the entire US, so it resulted in an NA for the region.
+
+#using sqldf
+insuranceTotals2016_sqldf = sqldf('SELECT regions, SUM(medicareEnrollment2016) AS totalMedicare2016,
+                                  SUM(medicaidEnrollment2016) AS totalMedicaid2016
+                                  FROM insurance 
+                                  GROUP BY regions')
+
+insuranceTotals2016_sqldf = na.omit(insuranceTotals2016_sqldf)
+```
+
+At the end, both results will be the same. Now that we have this data frame, let's plot our results using ggplot2.
+
+#Mapping with ggplot
+
+```{r}
+library(ggplot2)
+
+#Medicare bar chart
+g <- ggplot(insuranceTotals2016, aes(reorder(regions,-totalMedicare2016), totalMedicare2016), fill = totalMedicare2016)+ #reorder and the (-) before the totalMedicare tells it to sort in descending order
+     geom_bar(position = "dodge", stat = "identity", fill = 'forest green') + 
+     scale_y_continuous(labels =  scales::comma) +
+     ggtitle("Medicare Enrollment 2016 by Region")+
+     theme(plot.title = element_text(family = 'serif' ,color="black", size=22, face="italic", hjust = 0.5))+
+     theme(axis.title.x = element_blank())+
+     theme(axis.title.y = element_blank())+
+     theme(axis.text.x= element_text(family = 'serif' ,color="black", size=14))+
+     theme(axis.text.y= element_text(family = 'serif' ,color="black", size=14))
+
+g
+```
+
+Now, let's plot the same for Medicaid.
+
+```{r}
+#Medicaid bar chart
+
+h <- ggplot(insuranceTotals2016, aes(reorder(regions,totalMedicaid2016), totalMedicaid2016), fill = totalMedicaid2016)+
+  geom_bar(position = "dodge", stat = "identity", fill = 'navy blue') + 
+  scale_y_continuous(labels =  scales::comma) + coord_flip() + 
+  #coord_flip changes bars from vertical to horizontal
+  ggtitle("Medicaid Enrollment 2016 by Region")+
+  theme(plot.title = element_text(family = 'serif' ,color="black", size=22, face="italic", hjust = 0.5))+
+  theme(axis.title.x = element_blank())+
+  theme(axis.title.y = element_blank())+
+  theme(axis.text.x= element_text(family = 'serif' ,color="black", size=14))+
+  theme(axis.text.y= element_text(family = 'serif' ,color="black", size=14))
+
+h
+```
+
+As you can see, the South has the most enrollment for both Medicaid and Medicare. 
+
+Important information regarding the syntax of these bar charts:
+
+geom_bar() if you want the heights of the bars to represent values in the data, use stat="identity"
+geom_bar() by default x's occurring in the same place with be stacked on top of each other, if you 
+want them to be dodged from side to side, use position = "dodge"
+theme() is all formatting techniques
+uncomment coord_flip() to see your bar chart switch from vertical to horizontal
+scale_y_continuous() is to not have scientific notation values
+
+Now, let's use the package reshape2 to reshape our data so that we can compare Medicaid and Medicare side by side. Then, I just renamed the columns to something more understandable.
+
+```{r}
+library(reshape2)
+
+insuranceTotals2016_melt <- melt(insuranceTotals2016)
+names(insuranceTotals2016_melt)[3] <- "totalEnrollment"
+names(insuranceTotals2016_melt)[2] <- "insurance"
+```
+
+Now that we have the new data frame, we can plot side by side a lot easier.
+
+```{r}
+
+j = ggplot(insuranceTotals2016_melt, aes(regions, y= totalEnrollment, fill = insurance)) +
+      geom_bar(stat="identity", position = "dodge")+
+      scale_y_continuous(labels =  scales::comma)+
+      ggtitle("Medicare and Medicaid Enrollment 2016 by Region")+
+      theme(plot.title = element_text(family = 'serif' ,color="black", size=20, face="italic", hjust = 0.5))+
+      theme(axis.title.x = element_blank())+
+      theme(axis.title.y = element_blank())+
+      theme(axis.text.x= element_text(family = 'serif' ,color="black", size=14))+
+      theme(axis.text.y= element_text(family = 'serif' ,color="black", size=14))+
+      theme(legend.text = element_text(family = 'serif' ,color="black", size=14))+
+      theme(legend.title = element_text(family = 'serif' ,color="black", size=14))+
+      scale_fill_manual(values = c("#BE143C", "#3C8A2E")) #just manually choosing colors.
+
+j
+```
+
+The plot shows how both Medicaid and Medicare compare to each other in each region. It's very clear now that the South has the most enrollment in both and that Medicaid is more popular.
+
+We can also create a stacked bar chart to show totals while differentiating between both products.
+
+```{r}
+l = ggplot(insuranceTotals2016_melt, aes(regions, y= totalEnrollment, fill = insurance)) +
+      geom_bar(stat="identity", position = "stack")+
+      scale_y_continuous(labels =  scales::comma)+
+      ggtitle("Medicare and Medicaid Enrollment 2016 by Region")+
+      theme(plot.title = element_text(family = 'serif' ,color="black", size=20, face="italic", hjust = 0.5))+
+      theme(axis.title.x = element_blank())+
+      theme(axis.title.y = element_blank())+
+      theme(axis.text.x= element_text(family = 'serif' ,color="black", size=14))+
+      theme(axis.text.y= element_text(family = 'serif' ,color="black", size=14))+
+      theme(legend.text = element_text(family = 'serif' ,color="black", size=14))+
+      theme(legend.title = element_text(family = 'serif' ,color="black", size=14))+
+      scale_fill_manual(values = c("#BE143C", "#3C8A2E"))
+
+l
+```
+
+The stacked bars give us a better understanding of totals per region, but the side by side ones help us see which product is more common in each area. 
+
+These charts are cool and everything, but what about mapping this data?
+
+```{r}
+#library(ggmap)
+
+#library(maps)
+
+#library(mapdata)
+```
+
+Since we have the state information for each product, we can easily see how enrollment is for each state without need to create 50 bars in a chart. We can just map it.First, let's get some data on the coordinates of each state and plotting it. 
+
+```{r}
+statesMap <- map_data("state") 
+head(statesMap)
+```
+
+
+```{r}
+
+ggplot(data = statesMap) + 
+  geom_polygon(aes(x = long, y = lat, fill = region, group = group), color = "white") + 
+  coord_fixed(1.3) +
+  guides(fill=FALSE) #to remove the legend because 50 different colors would be disturbing for our audience
+
+```
+
+We have two products, let's choose to map Medicare. First, I will rename the data frame we created with the states' coordinates.
+
+```{r}
+#choosing the data to map
+
+colnames(statesMap) <- c("long", "lat", "group", "order", "state", "subregion")
+
+```
+
+Then, let's select the columns we need from our original data to just plot Medicare 2016 enrollment.
+
+```{r}
+medicare = insurance[, c(1, 14)] #new df with only state and medicare enrollment
+medicare$state = tolower(medicare$state) #change to lower case to better join with the states df we had
+
+head(medicare)
+
+```
+
+Next, we can join our data of medicare enrollment with that of the states coordinates so we can plot it.
+
+```{r}
+statesMap = statesMap[, c(5, 1, 2, 3, 4, 6)] #reordering columns
+
+medicareStates = inner_join(medicare, statesMap, by = "state")
+
+head(medicareStates)
+```
+
+Now, I can see a problem. Our merged data is reproducing the same enrollment amount for every instance of each state. As you can see, Alabama has multiple instances of the same enrollment number. To fix this, I chose to write a for loop that will compare rows and turn the repeated values to 0 so it doesn't affect our totals when mapping it.
+
+```{r}
+for (i in 1:nrow(medicareStates)){
+  if (i < nrow(medicareStates)){
+    if (medicareStates$state[i] == medicareStates$state[i+1]){
+      medicareStates$medicareEnrollment2016[i] <- medicareStates$medicareEnrollment2016[i]
+      medicareStates$medicareEnrollment2016[i+1] <- 0
+    }
+  } 
+}
+
+head(medicareStates)
+```
+
+FIXED!
+
+Next, we can create a map based on the information we currently have.
+
+```{r}
+medicare_Map = ggplot(data = medicareStates, mapping = aes(x = long, y = lat, group = group)) + 
+  coord_fixed(1.3) + 
+  geom_polygon(color = "black", fill = "gray")
+
+medicare_Map
+```
+
+Now that we have the map, let's fill it with the actual information we want to map.
+
+For aesthetics, I chose to remove all the axes that we can have in this map like lat and long and their actual values.
+
+```{r}
+remove_axes <- theme(
+                  axis.text = element_blank(),
+                  axis.line = element_blank(),
+                  axis.ticks = element_blank(),
+                  panel.border = element_blank(),
+                  panel.grid = element_blank(),
+                  axis.title = element_blank())
+```
+
+Now let's map it!
+
+```{r}
+gradient_map <- medicare_Map + 
+  geom_polygon(data = medicareStates, aes(fill = medicareEnrollment2016), color = "white") +
+  geom_polygon(color = "black", fill = NA) +
+  theme_bw() +
+  remove_axes
+
+gradient_map
+```
+
+We had a very nice map but the legend is in scientific notation and some colors within the map seem very similar and hard to identify. Let's fix this.
+
+```{r}
+finalMap = gradient_map + #using the map from above 
+  scale_fill_gradientn(colours= c("lightblue", "navyblue"), labels = scales::comma,
+                                name = "Population Density")+ #adding manual colors, no scientific notation and legend title
+  ggtitle("Medicare Population 2016 in the US")+ #map title
+  theme(legend.title = element_text(family = 'serif' ,color="black", size=14))+ #format legend title
+  theme(plot.title = element_text(family = 'serif' ,color="black", size=22, face="italic", hjust = 0.5)) #format map title
+
+finalMap
+```
+
+And voila! We got a nicer looking map!

@@ -1,5 +1,7 @@
 ---
 title: "R_Visualization"
+author: "Monica Perez"
+date: "October 26, 2017"
 output: html_document
 ---
 
@@ -9,8 +11,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r}
-install.packages('rmarkdown')
-library(rmarkdown)
 #Dataset from: https://www.kaggle.com/hhs/health-insurance/data
 
 install.packages('ggplot2') #install a package
