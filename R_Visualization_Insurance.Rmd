@@ -11,9 +11,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Visualization using ggplot
-
-# Medicare and Medicaid Insurance Data from Kaggle 
+## Medicare and Medicaid Insurance Data from Kaggle 
 
 You can find the data set here: https://www.kaggle.com/hhs/health-insurance/data 
 
@@ -22,13 +20,23 @@ Load to your environment, let's call it insurance
 
 insurance = read.csv('C:/Users/monik/github/R_visualization/states.csv')
 
+```
+
+Let's explore the data:
+
+```{r}
 summary(insurance)
+
+head(insurance)
 ```
 
 After loading the data, we can change the column names to make it easier to read and understand.
 
 ```{r}
 colnames(insurance) = c("state", "uninsuredRate2010", "uninsuredRate2015",    "uninsuredRateChange2010_2015","healthInsuranceCoverageChange2010_2015", "employerHealthInsuranceCoverage2015", "marketplaceHealthInsuranceCoverage2016", "marketplaceTaxCredits2016","averageMonthlyTaxCredit2016", "stateMedicaidExpansion2016", "medicaidEnrollment2013", "medicaidEnrollment2016", "medicaidEnrollmentChange2013_2016", "medicareEnrollment2016")
+
+head(insurance)
+
 ```
 
 Now, let's explore the data and see if any of the columns have the appropriate data type.
@@ -48,6 +56,8 @@ Now, I'd like to create a region column so that we can compare enrollment betwee
 insurance$regions = NA #to create the new column
 insurance$state = as.character(insurance$state) #to edit the state column change to character first
 insurance$state = gsub(" $", "", insurance$state) #use gsub to remove the last part of the string by using regex.
+
+head(insurance$regions)
 ```
 
 Now, we have to poulate our new column. The following for loop takes care of it.
@@ -74,6 +84,8 @@ for (i in 1:nrow(insurance)){
     insurance$regions[i] = NA
   }
 }
+
+head(insurance$regions)
 ```
 Next, I will be using both dplyr and sqldf to run quick queries on the data to have an aggregated data frame. Make sure you install the packages if you haven't already. 
 
