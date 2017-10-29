@@ -367,10 +367,14 @@ As you can see, the South has the most enrollment for both Medicaid and Medicare
 Important information regarding the syntax of these bar charts:
 
 geom_bar() if you want the heights of the bars to represent values in the data, use stat="identity"
+
 geom_bar() by default x's occurring in the same place with be stacked on top of each other, if you 
 want them to be dodged from side to side, use position = "dodge"
+
 theme() is all formatting techniques
+
 uncomment coord_flip() to see your bar chart switch from vertical to horizontal
+
 scale_y_continuous() is to not have scientific notation values
 
 Now, let's use the package reshape2 to reshape our data so that we can compare Medicaid and Medicare side by side. Then, I just renamed the columns to something more understandable.
@@ -468,8 +472,6 @@ head(statesMap)
 ## 6 -87.58806 30.32665     1     6 alabama      <NA>
 ```
 
-
-
 ```r
 ggplot(data = statesMap) + 
   geom_polygon(aes(x = long, y = lat, fill = region, group = group), color = "white") + 
@@ -509,7 +511,6 @@ head(medicare)
 ```
 
 Next, we can join our data of medicare enrollment with that of the states coordinates so we can plot it.
-
 
 ```r
 statesMap = statesMap[, c(5, 1, 2, 3, 4, 6)] #reordering columns
